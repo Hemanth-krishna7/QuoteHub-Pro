@@ -176,7 +176,7 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 1rem;
     box-shadow: var(--shadow-md);
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .card-premium:hover {
@@ -189,6 +189,8 @@ h1, h2, h3, h4, h5, h6 {
     padding: 1.5rem;
     border-bottom: 1px solid var(--border-color);
     background-color: rgba(0, 0, 0, 0.01);
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
 }
 
 .card-premium-body {
@@ -199,6 +201,8 @@ h1, h2, h3, h4, h5, h6 {
     padding: 1.25rem 1.5rem;
     border-top: 1px solid var(--border-color);
     background-color: rgba(0, 0, 0, 0.01);
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
 }
 
 /* KPI metric cards */
