@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - QuoteHub Pro{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div>
+        <h1 class="mb-1">Dashboard & Statistics</h1>
+        <p class="text-secondary mb-0">Monitor your quote generation trends, collections spread, and audit recent actions.</p>
+    </div>
+</div>
+
+<!-- KPI Metrics Section -->
+<div class="row g-4 mb-4 animate__animated animate__fadeIn">
+    <!-- Total Generated -->
+    <div class="col-12 col-md-4">
+        <div class="card-premium kpi-card">
+            <div class="kpi-icon primary">
+                <i class="fas fa-database"></i>
+            </div>
+            <div class="kpi-info">
+                <h3>{{ stats.total_quotes }}</h3>
+                <span>Quotes Discovered</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Total Favorites -->
+    <div class="col-12 col-md-4">
+        <div class="card-premium kpi-card">
+            <div class="kpi-icon success">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="kpi-info">
+                <h3>{{ stats.total_favorites }}</h3>
+                <span>Favorited Quotes</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Total Collections -->
+    <div class="col-12 col-md-4">
+        <div class="card-premium kpi-card">
+            <div class="kpi-icon warning">
+                <i class="fas fa-folder-open"></i>
+            </div>
+            <div class="kpi-info">
+                <h3>{{ stats.total_collections }}</h3>
+                <span>Collections Formed</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- History Discovery Chart -->
+    <div class="col-12 col-lg-8">
+        <div class="card-premium h-100">
+            <div class="card-premium-header">
+                <h5 class="mb-0 text-primary"><i class="fas fa-chart-line me-2"></i>Discovery Timeline (Past 7 Days)</h5>
+            </div>
+            <div class="card-premium-body">
+                {% if stats.history_chart %}
+                    <div class="chart-container">
+                        <canvas id="historyChart"></canvas>
+                    </div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);" class="mt-2 text-center">
+                        <i class="fas fa-info-circle me-1"></i> Data automatically updates as you generate and bookmark new quotes.
+                    </div>
+                {% else %}
+                    <div class="empty-state-container">
+                        <i class="fas fa-chart-area empty-state-icon"></i>
+                        <div class="empty-state-title">Not enough data to map timeline</div>
+                        <div class="empty-state-subtitle">Generate quotes across different days to visualize your activity trends.</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Collections Spread Chart -->
+    <div class="col-12 col-lg-4">
+        <div class="card-premium h-100">
+            <div class="card-premium-header">
+                <h5 class="mb-0 text-primary"><i class="fas fa-chart-pie me-2"></i>Collection Density</h5>
+            </div>
+            <div class="card-premium-body d-flex flex-column align-items-center justify-content-center">
+                {% if stats.collections_chart and stats.total_collections > 0 %}
+                    <div class="chart-container">
+                        <canvas id="collectionsChart"></canvas>
+                    </div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted);" class="mt-2 text-center">
+                        <i class="fas fa-info-circle me-1"></i> Showing top collections distribution.
+                    </div>
+                {% else %}
+                    <div class="empty-state-container">
+                        <i class="fas fa-folder-open empty-state-icon"></i>
+                        <div class="empty-state-title">No collections mapped</div>
+                        <div class="empty-state-subtitle">Create custom folders and organize quotes to view density analytics.</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Top Authors -->
+    <div class="col-md-5">
+        <div class="card-premium h-100">
+            <div class="card-premium-header">
+                <h5 class="mb-0 text-primary"><i class="fas fa-pen-nib me-2"></i>Top Authors</h5>
+            </div>
+            <div class="card-premium-body">
+                {% if stats.top_authors %}
+                    <ul class="list-group list-group-flush" style="background: transparent;">
+                        {% for author in stats.top_authors %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-color" style="background: transparent; color: var(--text-primary);">
+                                <span class="fw-500"><i class="fas fa-user text-muted me-2"></i>{{ author.author }}</span>
+                                <span class="badge bg-secondary text-secondary-50 rounded-pill">{{ author.count }} {{ 'quote' if author.count == 1 else 'quotes' }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-secondary text-center py-4">No authors identified in database yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column: Recent Activity Feed -->
+    <div class="col-md-7">
+        <div class="card-premium h-100">
+            <div class="card-premium-header">
+                <h5 class="mb-0 text-primary"><i class="fas fa-tasks me-2"></i>Recent Activity Feed</h5>
+            </div>
+            <div class="card-premium-body" style="max-height: 350px; overflow-y: auto;">
+                {% if activities %}
+                    <ul class="activity-feed">
+                        {% for act in activities %}
+                            <li class="activity-feed-item">
+                                <!-- Icon Selection based on Activity Type -->
+                                <div class="activity-feed-icon {% if act.activity_type == 'generate' or act.activity_type == 'daily_fetch' %}generate{% elif act.activity_type == 'favorite' or act.activity_type == 'unfavorite' %}favorite{% else %}collection{% endif %}">
+                                    {% if act.activity_type == 'generate' or act.activity_type == 'daily_fetch' %}
+                                        <i class="fas fa-sync"></i>
+                                    {% elif act.activity_type == 'favorite' %}
+                                        <i class="fas fa-heart"></i>
+                                    {% elif act.activity_type == 'unfavorite' %}
+                                        <i class="fas fa-heart-broken"></i>
+                                    {% elif act.activity_type == 'collection_create' %}
+                                        <i class="fas fa-folder-plus"></i>
+                                    {% elif act.activity_type == 'collection_add' %}
+                                        <i class="fas fa-plus-circle"></i>
+                                    {% elif act.activity_type == 'collection_remove' %}
+                                        <i class="fas fa-minus-circle"></i>
+                                    {% else %}
+                                        <i class="fas fa-info-circle"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="activity-feed-details">
+                                    <p class="activity-feed-desc">{{ act.description }}</p>
+                                    <span class="activity-feed-time">
+                                        <i class="far fa-clock me-1"></i>{{ act.created_at }}
+                                    </span>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-secondary text-center py-4 mb-0">No actions recorded in log yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Chart.js CDN (Safe, premium visualization) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Shared chart styling overrides
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim();
+        
+        // 1. Render History Discovery Chart
+        {% if stats.history_chart %}
+            const historyLabels = [{% for item in stats.history_chart %}'{{ item.date_label }}',{% endfor %}];
+            const historyData = [{% for item in stats.history_chart %}{{ item.count }},{% endfor %}];
+            
+            const ctxHistory = document.getElementById('historyChart').getContext('2d');
+            new Chart(ctxHistory, {
+                type: 'line',
+                data: {
+                    labels: historyLabels,
+                    datasets: [{
+                        label: 'Quotes Generated',
+                        data: historyData,
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(),
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim()
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 },
+                            grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        {% endif %}
+        
+        // 2. Render Collections Density Doughnut Chart
+        {% if stats.collections_chart and stats.total_collections > 0 %}
+            const collectionLabels = [{% for item in stats.collections_chart %}'{{ item.name }}',{% endfor %}];
+            const collectionData = [{% for item in stats.collections_chart %}{{ item.count }},{% endfor %}];
+            
+            const ctxCollections = document.getElementById('collectionsChart').getContext('2d');
+            new Chart(ctxCollections, {
+                type: 'doughnut',
+                data: {
+                    labels: collectionLabels,
+                    datasets: [{
+                        data: collectionData,
+                        backgroundColor: [
+                            '#4f46e5',
+                            '#8b5cf6',
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        {% endif %}
+    });
+</script>
+{% endblock %}

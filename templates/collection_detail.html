@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ collection.name }} - QuoteHub Pro{% endblock %}
+
+{% block content %}
+<div class="content-header flex-column align-items-start flex-sm-row justify-content-between align-items-sm-center">
+    <div class="mb-3 mb-sm-0">
+        <div class="d-flex align-items-center mb-2">
+            <a href="{{ url_for('collections') }}" class="btn-premium-outline btn-sm me-3 py-1 px-2" style="font-size: 0.8rem;">
+                <i class="fas fa-chevron-left me-1"></i> Back
+            </a>
+            <h1 class="mb-0 fs-3 text-primary"><i class="fas fa-folder me-2 text-warning"></i>{{ collection.name }}</h1>
+        </div>
+        {% if collection.description %}
+            <p class="text-secondary mb-0 ms-0 ms-sm-5" style="max-width: 600px;">
+                {{ collection.description }}
+            </p>
+        {% endif %}
+    </div>
+    
+    <!-- Search Inside Collection -->
+    <form action="{{ url_for('collection_detail', collection_id=collection.id) }}" method="GET">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="q" class="search-input" placeholder="Search this collection..." value="{{ search_query }}">
+        </div>
+    </form>
+</div>
+
+{% if quotes %}
+    <!-- Grid of Quotes inside Collection -->
+    <div class="row g-4">
+        {% for quote in quotes %}
+            <div class="col-12 col-md-6 col-lg-6">
+                <div class="card-premium card-compact h-100 d-flex flex-column justify-content-between">
+                    <div class="card-premium-body">
+                        <!-- Header Tools -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted" style="font-size: 0.75rem;">
+                                <i class="fas fa-calendar-alt me-1"></i>Saved in Collection
+                            </span>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm p-1 text-secondary favorite-btn {% if quote.is_favorite %}active{% endif %}" data-quote-id="{{ quote.id }}" title="Favorite" aria-label="Toggle favorite status">
+                                    <i class="{% if quote.is_favorite %}fas fa-heart text-danger{% else %}far fa-heart{% endif %}"></i>
+                                </button>
+                                <button class="btn btn-sm p-1 text-secondary copy-btn" data-quote-text="{{ quote.quote_text }}" data-quote-author="{{ quote.author }}" title="Copy" aria-label="Copy quote text to clipboard">
+                                    <i class="far fa-copy"></i>
+                                </button>
+                                <button class="btn btn-sm p-1 text-secondary export-btn" data-quote-text="{{ quote.quote_text }}" data-quote-author="{{ quote.author }}" title="Export PNG" aria-label="Export quote card as PNG image">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Text -->
+                        <p class="card-text">
+                            "{{ quote.quote_text }}"
+                        </p>
+                        <span class="fw-600 text-primary">— {{ quote.author }}</span>
+                    </div>
+                    
+                    <div class="card-premium-footer d-flex gap-2">
+                        <!-- Quick Add To Another Collection -->
+                        <div class="btn-group flex-grow-1">
+                            <button type="button" class="btn btn-sm btn-premium-outline w-100 justify-content-center dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Copy quote to another custom collection">
+                                <i class="far fa-copy me-1"></i> Copy to Other
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="background-color: var(--bg-card); max-height: 180px; overflow-y: auto;">
+                                {% if collections %}
+                                    {% for col in collections %}
+                                        {% if col.id != collection.id %}
+                                            <li>
+                                                <a class="dropdown-item add-to-coll-item py-2" href="#" data-collection-id="{{ col.id }}" data-quote-id="{{ quote.id }}">
+                                                    <i class="fas fa-folder me-2 text-muted"></i>{{ col.name }}
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <li><span class="dropdown-item text-muted disabled">No collections found</span></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        
+                        <!-- Remove button -->
+                        <button class="btn btn-sm btn-outline-danger remove-from-coll-btn" data-collection-id="{{ collection.id }}" data-quote-id="{{ quote.id }}" title="Remove from this collection" aria-label="Remove quote from this collection">
+                            <i class="fas fa-folder-minus me-1"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% else %}
+    <!-- Empty State -->
+    <div class="card-premium text-center py-5 px-4 mt-4">
+        <div class="mb-3">
+            <i class="fas fa-quote-right text-muted" style="font-size: 3rem;"></i>
+        </div>
+        <h4 class="mb-2">Collection is empty</h4>
+        <p class="text-secondary mb-4">No quotes saved under this collection folder yet.</p>
+        <div class="d-flex justify-content-center gap-3">
+            {% if search_query %}
+                <a href="{{ url_for('collection_detail', collection_id=collection.id) }}" class="btn-premium-outline">Clear Search</a>
+            {% else %}
+                <a href="{{ url_for('index') }}" class="btn-premium">Discover Quotes</a>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Collections - QuoteHub Pro{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div>
+        <h1 class="mb-1">Quote Collections</h1>
+        <p class="text-secondary mb-0">Organize quotes into custom themes, projects, or categories.</p>
+    </div>
+    
+    <button class="btn-premium" data-bs-toggle="modal" data-bs-target="#createCollectionModal">
+        <i class="fas fa-folder-plus"></i> Create Collection
+    </button>
+</div>
+
+{% if collections %}
+    <!-- Grid of Collections -->
+    <div class="row g-4">
+        {% for col in collections %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card-premium h-100 d-flex flex-column justify-content-between">
+                    <div class="card-premium-body d-flex flex-column h-100">
+                        <div class="d-flex align-items-start justify-content-between mb-2">
+                            <h5 class="card-title text-primary mb-0">
+                                <i class="fas fa-folder me-2 text-warning"></i>{{ col.name }}
+                            </h5>
+                            <span class="badge bg-secondary text-secondary-50" style="font-size: 0.75rem;">
+                                {{ col.quote_count }} {{ 'quote' if col.quote_count == 1 else 'quotes' }}
+                            </span>
+                        </div>
+                        
+                        {% if col.description %}
+                            <p class="card-text text-secondary mb-0 mt-3" style="font-size: 0.875rem; line-height: 1.45;">
+                                {{ col.description }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-premium-footer d-flex gap-2 justify-content-between">
+                        <a href="{{ url_for('collection_detail', collection_id=col.id) }}" class="btn btn-sm btn-premium-outline flex-grow-1 justify-content-center" aria-label="View quotes in collection {{ col.name }}">
+                            <i class="fas fa-eye me-1"></i> View quotes
+                        </a>
+                        <button class="btn btn-sm btn-outline-danger delete-collection-btn" data-collection-id="{{ col.id }}" title="Delete Collection" aria-label="Delete collection {{ col.name }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% else %}
+    <!-- Empty State -->
+    <div class="card-premium text-center py-5 px-4 mt-4">
+        <div class="mb-3">
+            <i class="fas fa-folder-open text-muted" style="font-size: 3rem;"></i>
+        </div>
+        <h4 class="mb-2">No collections yet</h4>
+        <p class="text-secondary mb-4">Organize your favorite quote files into curated folders for easy reference.</p>
+        <button class="btn-premium mx-auto" data-bs-toggle="modal" data-bs-target="#createCollectionModal">
+            <i class="fas fa-plus me-1"></i> Create First Collection
+        </button>
+    </div>
+{% endif %}
+
+<!-- Modal for Creating a Collection -->
+<div class="modal fade" id="createCollectionModal" tabindex="-1" aria-labelledby="createCollectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-card); border-radius: 1rem;">
+            <div class="modal-header border-bottom var(--border-color)">
+                <h5 class="modal-title text-primary" id="createCollectionModalLabel"><i class="fas fa-folder-plus me-2"></i>Create Collection</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: var(--text-primary) == '#f8fafc' ? 'invert(1)' : 'none';"></button>
+            </div>
+            <form id="create-collection-form">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="collection-name" class="form-label fw-500">Collection Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-input-premium" id="collection-name" placeholder="e.g. Daily Inspiration, Philosophy, Career Goals" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="collection-desc" class="form-label fw-500">Description <span class="text-muted">(Optional)</span></label>
+                        <textarea class="form-control form-input-premium" id="collection-desc" rows="3" placeholder="Describe the focus of this collection..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top var(--border-color)">
+                    <button type="button" class="btn-premium-outline" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn-premium">Create Collection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

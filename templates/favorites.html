@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Favorites - QuoteHub Pro{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div>
+        <h1 class="mb-1">My Favorites</h1>
+        <p class="text-secondary mb-0">Browse through your curated library of favorited quotes.</p>
+    </div>
+    
+    <!-- Search Box -->
+    <form action="{{ url_for('favorites') }}" method="GET">
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" name="q" class="search-input" placeholder="Search favorites..." value="{{ search_query }}">
+        </div>
+    </form>
+</div>
+
+{% if quotes %}
+    <!-- Grid of Favorited Cards -->
+    <div class="row g-4">
+        {% for quote in quotes %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card-premium card-compact h-100 d-flex flex-column justify-content-between">
+                    <div class="card-premium-body">
+                        <!-- Header tools -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10 rounded-pill px-2 py-1" style="font-size: 0.7rem;">
+                                <i class="fas fa-heart me-1"></i>Favorite
+                            </span>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm p-1 text-secondary favorite-btn active" data-quote-id="{{ quote.id }}" title="Remove Favorite" aria-label="Remove favorite">
+                                    <i class="fas fa-heart text-danger"></i>
+                                </button>
+                                <button class="btn btn-sm p-1 text-secondary copy-btn" data-quote-text="{{ quote.quote_text }}" data-quote-author="{{ quote.author }}" title="Copy" aria-label="Copy quote text to clipboard">
+                                    <i class="far fa-copy"></i>
+                                </button>
+                                <button class="btn btn-sm p-1 text-secondary export-btn" data-quote-text="{{ quote.quote_text }}" data-quote-author="{{ quote.author }}" title="Export PNG" aria-label="Export quote card as PNG image">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Text -->
+                        <p class="card-text">
+                            "{{ quote.quote_text }}"
+                        </p>
+                        <span class="fw-600 text-primary">— {{ quote.author }}</span>
+                    </div>
+                    
+                    <div class="card-premium-footer">
+                        <!-- Quick Add To Collection Dropdown -->
+                        <div class="btn-group w-100">
+                            <button type="button" class="btn btn-sm btn-premium-outline w-100 justify-content-center dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Save quote to a custom collection">
+                                <i class="far fa-folder me-1"></i> Save to Collection
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="background-color: var(--bg-card); max-height: 200px; overflow-y: auto;">
+                                {% if collections %}
+                                    {% for col in collections %}
+                                        <li>
+                                            <a class="dropdown-item add-to-coll-item py-2" href="#" data-collection-id="{{ col.id }}" data-quote-id="{{ quote.id }}">
+                                                <i class="fas fa-folder me-2 text-muted"></i>{{ col.name }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li><span class="dropdown-item text-muted disabled">No collections found</span></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% else %}
+    <!-- Empty State -->
+    <div class="card-premium text-center py-5 px-4 mt-4">
+        <div class="mb-3">
+            <i class="fas fa-heart text-muted" style="font-size: 3rem;"></i>
+        </div>
+        <h4 class="mb-2">No favorites yet</h4>
+        <p class="text-secondary mb-4">Quotes you favorite will show up here. Build your portfolio checklist now!</p>
+        <div class="d-flex justify-content-center gap-3">
+            {% if search_query %}
+                <a href="{{ url_for('favorites') }}" class="btn-premium-outline">Clear Search</a>
+            {% else %}
+                <a href="{{ url_for('index') }}" class="btn-premium">Discover Quotes</a>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

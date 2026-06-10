@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}QuoteHub Pro{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/2541/2541991.png">
+    
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 CDN for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Animate.css for subtle transitions -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <!-- Custom Style Sheet -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Mobile Header Navigation -->
+    <div class="mobile-header">
+        <button id="sidebar-toggle" class="mobile-toggle" aria-label="Open sidebar menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h3>QuoteHub Pro</h3>
+        <button id="theme-toggle-mobile" class="theme-toggle-btn" style="width: 2rem; height: 2rem;" aria-label="Switch between light and dark theme">
+            <i class="fas fa-moon" style="font-size: 0.85rem;"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay"></div>
+
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar">
+            <div class="sidebar-brand">
+                <i class="fas fa-quote-left me-2 text-primary" style="font-size: 1.25rem;"></i>
+                <h3>QuoteHub Pro</h3>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="sidebar-item {% if request.endpoint == 'index' %}active{% endif %}">
+                    <a href="{{ url_for('index') }}" aria-label="Discover random and daily quotes">
+                        <i class="fas fa-compass"></i>
+                        <span>Discover</span>
+                    </a>
+                </li>
+                <li class="sidebar-item {% if request.endpoint == 'history' %}active{% endif %}">
+                    <a href="{{ url_for('history') }}" aria-label="View history log of all generated quotes">
+                        <i class="fas fa-history"></i>
+                        <span>History Log</span>
+                    </a>
+                </li>
+                <li class="sidebar-item {% if request.endpoint == 'favorites' %}active{% endif %}">
+                    <a href="{{ url_for('favorites') }}" aria-label="View favorited quotes">
+                        <i class="fas fa-heart"></i>
+                        <span>Favorites</span>
+                    </a>
+                </li>
+                <li class="sidebar-item {% if request.endpoint == 'collections' or request.endpoint == 'collection_detail' %}active{% endif %}">
+                    <a href="{{ url_for('collections') }}" aria-label="View and manage custom quote collections">
+                        <i class="fas fa-folder-open"></i>
+                        <span>Collections</span>
+                    </a>
+                </li>
+                <li class="sidebar-item {% if request.endpoint == 'stats' %}active{% endif %}">
+                    <a href="{{ url_for('stats') }}" aria-label="View statistics dashboard and activity logs">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span>Quick Theme</span>
+                    <button id="theme-toggle-desktop" class="theme-toggle-btn" aria-label="Switch between light and dark theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+                <div>&copy; {{ now.year }} QuoteHub Pro</div>
+                <div style="font-size: 0.72rem; color: #475569;" class="mt-1">Personal Knowledge &amp; Inspiration Management Platform</div>
+            </div>
+        </aside>
+
+        <!-- Main Content Section -->
+        <main class="app-content">
+            <!-- Flask Flash Messaging -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show border-0 rounded-3 shadow-sm mb-4 animate__animated animate__fadeIn" role="alert">
+                            <i class="fas {% if category == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Hidden Export Card for html2canvas to render into Image -->
+    <div id="export-render-canvas" class="export-card-wrapper">
+        <div class="export-quote-text">Placeholder quote text</div>
+        <div class="export-quote-author">Placeholder Author</div>
+        <div class="export-watermark">EXPORTED FROM QUOTEHUB PRO</div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Bootstrap 5 JS Bundle CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- html2canvas CDN (Required for Quote Card Export) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Custom Application JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
