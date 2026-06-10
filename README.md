@@ -44,7 +44,8 @@ Users can generate quotes in real time, save favorites, create custom collection
 
 ### Collections
 
-<img width="2560" height="1600" alt="image" src="https://github.com/user-attachments/assets/b64faf78-4e3a-4ba4-967c-62258953e4ac" />
+<img width="2560" height="1600" alt="image" src="https://github.com/user-attachments/assets/c62d811b-bf6b-479c-b7e6-74ce91ae5e53" />
+
 
 ### Analytics Dashboard
 
