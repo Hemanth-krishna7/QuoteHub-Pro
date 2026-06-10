@@ -5,11 +5,5 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
-      - key: DATABASE_PATH
-        value: /var/data/quotes.db
       - key: SECRET_KEY
         generateValue: true
-    disk:
-      name: quotes-data
-      mountPath: /var/data
-      sizeGB: 1
