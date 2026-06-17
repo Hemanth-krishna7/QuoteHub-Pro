@@ -4,7 +4,7 @@ QuoteHub Pro is a full-stack quote discovery and management platform that helps 
 
 Users can generate quotes in real time, save favorites, create custom collections, track activity, explore analytics, and export beautifully designed quote cards for sharing.
 
-## Live Demo:-
+## Live Demo
 
 🔗 https://quotehub-pro.onrender.com
 
